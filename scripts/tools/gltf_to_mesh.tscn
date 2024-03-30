@@ -55,21 +55,22 @@ func convert_directory(path : String) -> void:
 func generate_mesh(child : MeshInstance3D, path : String) -> void:
 	var mesh : Mesh = child.mesh
 	var file_name : String = path.get_file().split(\".\")[0]
+	var tres_path : String = output_directory + \"/\" + file_name + \".tres\"
 	ResourceSaver.save(
 		mesh,
-		output_directory + \"/\" + file_name + \".tres\"
+		tres_path
 	)
 	if mesh_lib_scene:
-		add_mesh_to_library(mesh,file_name)
+		add_mesh_to_library(tres_path,file_name)
 	if !converting_dir:
 		pack_library_scene()
 
-func add_mesh_to_library(mesh : Mesh, file_name : String) -> void:
+func add_mesh_to_library(tres_path : String, file_name : String) -> void:
 	var new_mesh : MeshInstance3D = MeshInstance3D.new()
 	mesh_lib_scene.add_child(new_mesh)
 	new_mesh.name = file_name
 	new_mesh.owner = mesh_lib_scene
-	new_mesh.mesh = mesh
+	new_mesh.mesh = load(tres_path)
 	new_mesh.create_convex_collision()
 
 func is_output_missing() -> bool:
