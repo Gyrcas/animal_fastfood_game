@@ -1,0 +1,89 @@
+[gd_scene load_steps=2 format=3 uid="uid://csg7ajkuewsm5"]
+
+[sub_resource type="GDScript" id="GDScript_usgk5"]
+script/source = "@tool
+extends Node
+
+@export var delete_file_on_convert : bool = false
+
+@export_dir var output_directory : String
+
+@export_file(\"*.tscn\") var mesh_library_scene : String : set = load_mesh_library_scene
+
+@export_file(\"*.gltf\") var _convert_file : String : set = convert_file
+
+@export_dir var _convert_directory : String : set = convert_directory
+
+var pack : PackedScene
+
+var mesh_lib_scene : Node3D
+
+var converting_dir : bool = false
+
+func load_mesh_library_scene(path : String) -> void:
+	mesh_library_scene = path
+	if path:
+		pack = load(path)
+		mesh_lib_scene = pack.instantiate()
+	else:
+		mesh_lib_scene = null
+		pack = null
+
+func convert_file(path : String) -> void:
+	if is_output_missing():
+		return
+	if path.get_extension() != \"gltf\":
+		return
+	var scene : Node = load(path).instantiate()
+	var child : Node = scene.get_child(0)
+	if child is MeshInstance3D:
+		generate_mesh(child,path)
+	if delete_file_on_convert:
+		FS.delete(path)
+	scene.queue_free()
+
+func convert_directory(path : String) -> void:
+	if is_output_missing():
+		return
+	converting_dir = true
+	var files : Array = FS.read_dir(path)
+	for file in files:
+		convert_file(file)
+	pack_library_scene()
+	converting_dir = false
+
+func generate_mesh(child : MeshInstance3D, path : String) -> void:
+	var mesh : Mesh = child.mesh
+	var file_name : String = path.get_file().split(\".\")[0]
+	ResourceSaver.save(
+		mesh,
+		output_directory + \"/\" + file_name + \".tres\"
+	)
+	if mesh_lib_scene:
+		add_mesh_to_library(mesh,file_name)
+	if !converting_dir:
+		pack_library_scene()
+
+func add_mesh_to_library(mesh : Mesh, file_name : String) -> void:
+	var new_mesh : MeshInstance3D = MeshInstance3D.new()
+	mesh_lib_scene.add_child(new_mesh)
+	new_mesh.name = file_name
+	new_mesh.owner = mesh_lib_scene
+	new_mesh.mesh = mesh
+	new_mesh.create_convex_collision()
+
+func is_output_missing() -> bool:
+	if !output_directory:
+		push_error(\"Output directory must be set before convertion\")
+		return true
+	return false
+
+func pack_library_scene() -> void:
+	pack.pack(mesh_lib_scene)
+	ResourceSaver.save(pack,mesh_library_scene)
+"
+
+[node name="gltf_to_mesh" type="Node"]
+script = SubResource("GDScript_usgk5")
+output_directory = "res://assets/decorations"
+mesh_library_scene = "res://scenes/mesh_assets.tscn"
