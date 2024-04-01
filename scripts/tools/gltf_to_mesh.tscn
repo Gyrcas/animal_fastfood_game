@@ -86,5 +86,6 @@ func pack_library_scene() -> void:
 
 [node name="gltf_to_mesh" type="Node"]
 script = SubResource("GDScript_usgk5")
-output_directory = "res://assets/decorations"
+delete_file_on_convert = true
+output_directory = "res://assets/environments"
 mesh_library_scene = "res://scenes/mesh_assets.tscn"
