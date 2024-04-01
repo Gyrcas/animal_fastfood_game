@@ -3,7 +3,9 @@ class_name Player
 
 @onready var camera_pivot : Node3D = $camera_pivot
 
-@onready var camera : Camera3D = $camera_pivot/Camera3D
+@onready var camera : Camera3D = $camera_pivot/camera
+
+@onready var click_ray : RayCast3D = $camera_pivot/camera/click_ray
 
 @export var player_model : Node3D
 
@@ -19,11 +21,20 @@ class_name Player
 
 @export var cam_max_angle_down : float = 25
 
+static var placing_object : Furniture
+
 var anim_player : AnimationPlayer
 
 var last_dir : Vector2 = Vector2.ZERO
+
+var editing : bool = false : set = set_editing
+
+func set_editing(value : bool) -> void:
+	editing = value
+	set_collision_mask_value(Furniture.collision_layer,!editing)
  
 func _ready() -> void:
+	set_editing(true)
 	if player_model.get_parent() != self:
 		player_model.reparent(self)
 		return
@@ -31,8 +42,10 @@ func _ready() -> void:
 	anim_player = player_model.get_node("AnimationPlayer")
 	
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	click_ray.add_exception(self)
 
-func _physics_process(delta : float) -> void:
+func _physics_process(_delta : float) -> void:
 	var move_z : float = Input.get_axis("backward","forward")
 	var move_x : float = Input.get_axis("right","left")
 	
@@ -56,6 +69,10 @@ func _physics_process(delta : float) -> void:
 	else:
 		anim_player.play("Idle",0.5)
 	
+	if click_ray.is_colliding() && placing_object:
+		pass
+		#placing_object.move_to(click_ray.get_collision_point())
+	
 	if !is_on_floor():
 		velocity.y -= gravity
 	
@@ -64,6 +81,13 @@ func _physics_process(delta : float) -> void:
 func _input(event : InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		rotate_camera(event)
+	elif event.is_action_pressed("click"):
+		if placing_object:
+			placing_object.place()
+			placing_object = null
+			var new_object : MeshInstance3D = load("res://scenes/furnitures/tables/table.tscn").instantiate()
+			get_node("../nav").add_child(new_object)
+			placing_object = new_object
 
 func rotate_player_model() -> void:
 	var target_angle : float = rad_to_deg(atan2(velocity.x,velocity.z))

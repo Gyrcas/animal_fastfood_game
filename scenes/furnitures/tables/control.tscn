@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=3 uid="uid://bhbo54rnssrxl"]
+
+[ext_resource type="Script" path="res://preview3d.gd" id="1_yo4r3"]
+[ext_resource type="PackedScene" uid="uid://b3xywnpltkyf0" path="res://scenes/furnitures/tables/table.tscn" id="2_36jui"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_nmyfk"]
+viewport_path = NodePath("SubViewport")
+
+[sub_resource type="Environment" id="Environment_hbnuq"]
+background_mode = 1
+background_color = Color(0.870588, 1, 1, 1)
+background_energy_multiplier = 0.8
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("ViewportTexture_nmyfk")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+script = ExtResource("1_yo4r3")
+
+[node name="table" parent="SubViewport" instance=ExtResource("2_36jui")]
+transform = Transform3D(0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107, 0, 0, 0)
+skeleton = NodePath("../..")
+
+[node name="Camera3D" type="Camera3D" parent="SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.927236, 0.374477, 0, -0.374477, 0.927236, 0, 2, 3)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="SubViewport"]
+environment = SubResource("Environment_hbnuq")

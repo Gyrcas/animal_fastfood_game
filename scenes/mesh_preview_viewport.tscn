@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://fccwid7caxoa"]
+
+[sub_resource type="Environment" id="Environment_w13oe"]
+background_mode = 1
+background_color = Color(0.803922, 1, 1, 1)
+
+[sub_resource type="World3D" id="World3D_73ib8"]
+environment = SubResource("Environment_w13oe")
+
+[node name="mesh_preview_viewport" type="SubViewport"]
+world_3d = SubResource("World3D_73ib8")
+size = Vector2i(256, 256)
+render_target_update_mode = 4
+
+[node name="camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.906308, 0.422618, 0, -0.422618, 0.906308, 0, 3, 4)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.737867, 0.674947, 0, -0.674947, 0.737867, 0, 0, 0, 1, -2.32285, 2.1318, 0)
