@@ -1,0 +1,65 @@
+[gd_scene load_steps=6 format=3 uid="uid://qbqys603unp2"]
+
+[ext_resource type="Script" path="res://scripts/ui/menus/menu.gd" id="1_7knsh"]
+[ext_resource type="Script" path="res://scripts/ui/button_bar.gd" id="2_t4kaw"]
+[ext_resource type="Script" path="res://scripts/ui/menus/navigation_button.gd" id="2_thobk"]
+[ext_resource type="PackedScene" uid="uid://cjtyhes51s2hv" path="res://scenes/ui/menus/inventory_menu.tscn" id="3_qo4do"]
+[ext_resource type="Script" path="res://scripts/ui/menus/game_menu_manager.gd" id="5_ccv6o"]
+
+[node name="game_menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_7knsh")
+empty_on_back = true
+
+[node name="panel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="vbox" type="VBoxContainer" parent="panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="buttons" type="HBoxContainer" parent="panel/vbox"]
+layout_mode = 2
+script = ExtResource("2_t4kaw")
+
+[node name="close" type="Button" parent="panel/vbox/buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Close"
+script = ExtResource("2_thobk")
+
+[node name="inventory" type="Button" parent="panel/vbox/buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Inventory"
+script = ExtResource("2_thobk")
+_target = ExtResource("3_qo4do")
+
+[node name="notes" type="Button" parent="panel/vbox/buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Notes"
+script = ExtResource("2_thobk")
+
+[node name="menu_manager" type="Control" parent="panel/vbox"]
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("5_ccv6o")
+
+[connection signal="navigated" from="panel/vbox/buttons/close" to="." method="navigate"]
+[connection signal="navigated" from="panel/vbox/buttons/inventory" to="panel/vbox/menu_manager" method="change_menu"]
+[connection signal="emptied" from="panel/vbox/menu_manager" to="." method="navigate"]

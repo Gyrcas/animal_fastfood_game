@@ -7,13 +7,15 @@ class_name Player
 
 @onready var click_ray : RayCast3D = $camera_pivot/camera/click_ray
 
+@onready var base_dist_camera : float = camera.position.z
+
 @export var player_model : Node3D
 
 @export var speed : float = 8
 
 @export var gravity : float = 5
 
-@export var cam_force_mult : float = 1
+@export var cam_force_mult : float = 0.4
 
 @export var cam_min_force : float = 0.5
 
@@ -21,7 +23,25 @@ class_name Player
 
 @export var cam_max_angle_down : float = 25
 
-static var placing_object : Furniture
+static var current : Player
+
+var object_to_place : StockedFurniture : set = set_object_to_place
+
+func set_object_to_place(object : StockedFurniture) -> void:
+	object_to_place = object
+	if object:
+		set_placing_object(object.furniture.instantiate())
+	else:
+		set_placing_object(null)
+
+var placing_object : Furniture : set = set_placing_object
+
+func set_placing_object(object : Furniture) -> void:
+	if placing_object:
+		placing_object.queue_free()
+	placing_object = object
+	if placing_object:
+		get_parent().add_child(object)
 
 var anim_player : AnimationPlayer
 
@@ -34,6 +54,8 @@ func set_editing(value : bool) -> void:
 	set_collision_mask_value(Furniture.collision_layer,!editing)
  
 func _ready() -> void:
+	current = self
+	
 	set_editing(true)
 	if player_model.get_parent() != self:
 		player_model.reparent(self)
@@ -69,25 +91,39 @@ func _physics_process(_delta : float) -> void:
 	else:
 		anim_player.play("Idle",0.5)
 	
-	if click_ray.is_colliding() && placing_object:
-		pass
-		#placing_object.move_to(click_ray.get_collision_point())
+	if click_ray.is_colliding() && placing_object && placing_object.is_inside_tree() && editing:
+		placing_object.move_to(click_ray.get_collision_point())
 	
 	if !is_on_floor():
 		velocity.y -= gravity
 	
 	move_and_slide()
-	
+
 func _input(event : InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		rotate_camera(event)
-	elif event.is_action_pressed("click"):
-		if placing_object:
-			placing_object.place()
-			placing_object = null
-			var new_object : MeshInstance3D = load("res://scenes/furnitures/tables/table.tscn").instantiate()
-			get_node("../nav").add_child(new_object)
-			placing_object = new_object
+	if placing_object:
+		if event.is_action_pressed("click"):
+			place_object()
+		elif event.is_action_pressed("rotate_left"):
+			placing_object.do_rotate()
+		elif event.is_action_pressed("rotate_right"):
+			placing_object.do_rotate(true)
+	if event.is_action_pressed("change_camera"):
+		if camera.position.z == base_dist_camera:
+			camera.position.z = 0
+			player_model.visible = false
+		else:
+			camera.position.z = base_dist_camera
+			player_model.visible = true
+
+func place_object() -> void:
+	var new_object : Furniture = placing_object.duplicate()
+	new_object.place(placing_object.pos)
+	object_to_place.count -= 1
+	if object_to_place.count == 0:
+		Restaurant.current.stocked_furnitures.erase(object_to_place)
+		set_object_to_place(null)
 
 func rotate_player_model() -> void:
 	var target_angle : float = rad_to_deg(atan2(velocity.x,velocity.z))

@@ -11,7 +11,7 @@ extends Node
 # 	content -> what will be written file
 func write(file_path : String, content : String) -> void:
 	if !is_dir(file_path.get_base_dir()):
-		push_error(file_path + " is not a file")
+		push_error(file_path," is not a file")
 		return
 	var file : FileAccess = FileAccess.open(file_path,FileAccess.WRITE)
 	file.store_string(content)
@@ -35,7 +35,7 @@ func create_dir(dir_path : String) -> void:
 	if !is_dir(dir_parent):
 		dir_path = FS.root_dir() + ProjectSettings.globalize_path(dir_path)
 		if !is_dir(dir_path):
-			push_error(dir_path + " is not a dir")
+			push_error(dir_path," is not a dir")
 		return
 	if dir_path.get_extension() != "":
 		push_error("dir can't have extension")
@@ -49,9 +49,12 @@ func create_dir(dir_path : String) -> void:
 # return -> array containing the name of all the files and directories inside the given path
 func read_dir(dir_path : String, full_path : bool = true) -> Array:
 	if !is_dir(dir_path):
-		dir_path = FS.root_dir() + ProjectSettings.globalize_path(dir_path)
+		dir_path = str(
+			FS.root_dir(),
+			ProjectSettings.globalize_path(dir_path)
+		)
 		if !is_dir(dir_path):
-			push_error(dir_path + " is not a dir")
+			push_error(dir_path," is not a dir")
 			return []
 	var dir : DirAccess = DirAccess.open(dir_path)
 	if !dir:
@@ -61,9 +64,9 @@ func read_dir(dir_path : String, full_path : bool = true) -> Array:
 	if full_path:
 		for i in files.size():
 			if dir_path.right(1) != "/":
-				files[i] = dir_path + "/" + files[i]
+				files[i] = str(dir_path,"/",files[i])
 			else:
-				files[i] = dir_path + files[i]
+				files[i] = str(dir_path,files[i])
 	return files
 
 # get the text content of a file
@@ -72,7 +75,7 @@ func read_dir(dir_path : String, full_path : bool = true) -> Array:
 # return -> the text content of the file
 func read(file_path : String) -> String:
 	if !is_file(file_path):
-		push_error(file_path + " is not a file")
+		push_error(file_path," is not a file")
 		return ""
 	var file : FileAccess = FileAccess.open(file_path, FileAccess.READ)
 	var content : String = file.get_as_text()
@@ -99,14 +102,14 @@ func exist(file_path) -> bool:
 
 func delete(file_path : String) -> void:
 	if !exist(file_path):
-		push_error(file_path + " doesn't exist")
+		push_error(file_path," doesn't exist")
 		return
 	var dir : DirAccess = DirAccess.open(file_path.get_base_dir())
 	dir.remove(file_path)
 
 func delete_all(dir_path : String) -> void:
 	if !is_dir(dir_path):
-		push_error(dir_path + " doesn't exist")
+		push_error(dir_path," doesn't exist")
 		return
 	var files : Array = read_dir(dir_path)
 	for file in files:
@@ -115,4 +118,6 @@ func delete_all(dir_path : String) -> void:
 func root_dir() -> String:
 	if OS.has_feature("editor"):
 		return ProjectSettings.globalize_path("res://")
-	return OS.get_executable_path().get_base_dir() + "/"
+	return str(
+		OS.get_executable_path().get_base_dir(),"/"
+	)

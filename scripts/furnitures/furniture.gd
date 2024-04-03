@@ -22,8 +22,6 @@ func _ready() -> void:
 	body.set_collision_mask_value(1,false)
 	body.set_collision_layer_value(collision_layer,true)
 	body.set_collision_mask_value(collision_layer,true)
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
 	var nav_mesh : NavigationRegion3D = get_tree().get_first_node_in_group("nav_mesh")
 	if nav_mesh:
 		furniture_placed.connect(nav_mesh.bake_navigation_mesh)
@@ -48,6 +46,8 @@ func set_color(value : Color) -> void:
 	color = value
 	mesh.surface_get_material(0).albedo_color = color
 
-func place() -> void:
-	furnitures[pos] = self
-	furniture_placed.emit()
+func place(place_pos : Vector2) -> void:
+	if !furnitures.keys().has(place_pos):
+		Restaurant.current.nav.add_child(self)
+		furnitures[place_pos] = self
+		furniture_placed.emit()

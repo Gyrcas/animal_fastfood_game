@@ -1,0 +1,68 @@
+[gd_scene load_steps=4 format=3 uid="uid://cepff61mfqman"]
+
+[ext_resource type="Script" path="res://scripts/ui/menus/menu.gd" id="1_wdgfv"]
+[ext_resource type="Script" path="res://scripts/ui/menus/navigation_button.gd" id="2_q1ih8"]
+[ext_resource type="PackedScene" uid="uid://djqgfadsn38ej" path="res://scenes/ui/menus/options_menu.tscn" id="3_tx6w8"]
+
+[node name="pause_menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_wdgfv")
+empty_on_back = true
+
+[node name="hbox" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="left" type="Control" parent="hbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="center" type="Panel" parent="hbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="vbox" type="VBoxContainer" parent="hbox/center"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="resume" type="Button" parent="hbox/center/vbox"]
+layout_mode = 2
+text = "Resume"
+script = ExtResource("2_q1ih8")
+
+[node name="options" type="Button" parent="hbox/center/vbox"]
+layout_mode = 2
+text = "Options"
+script = ExtResource("2_q1ih8")
+_target = ExtResource("3_tx6w8")
+
+[node name="main_menu" type="Button" parent="hbox/center/vbox"]
+layout_mode = 2
+text = "Main Menu"
+script = ExtResource("2_q1ih8")
+
+[node name="quit" type="Button" parent="hbox/center/vbox"]
+layout_mode = 2
+text = "Quit"
+script = ExtResource("2_q1ih8")
+
+[node name="right" type="Control" parent="hbox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[connection signal="navigated" from="hbox/center/vbox/resume" to="." method="navigate"]
+[connection signal="navigated" from="hbox/center/vbox/options" to="." method="navigate"]
