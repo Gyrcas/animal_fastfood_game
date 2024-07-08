@@ -16,3 +16,6 @@ In this little project, you can press "tab" to open the menu and access the inve
 Related files:
 - scripts/entities/player.gd
 - scripts/furnitures/furniture.gd
+
+### Blending animation
+Did you know that you can blend animations? I didn't. I suggest that you look into that since it can make transitioning between animation really smooth.
