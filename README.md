@@ -9,3 +9,10 @@ You create a viewport with its own 3d space and a camera. Put your camera at an 
 You can find this technique in:
 - scripts/singletons/MeshPreview.gd
 - scenes/mesh_preview_viewport.tscn
+
+### Placing objects
+In this little project, you can press "tab" to open the menu and access the inventory. Here you can select objects that you want to place. Click to place an object. You can rotate the object with "Q" and "E". If you activate the option to see the navigation meshes in the editor, you'll see that the mesh update itself each time an object is placed.
+
+Related files:
+- scripts/entities/player.gd
+- scripts/furnitures/furniture.gd
